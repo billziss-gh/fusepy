@@ -58,19 +58,21 @@ if _system == 'Windows':
     # sizeof(long)==4 on Cygwin 32-bit and ==8 on Cygwin 64-bit
     #
     # We have to fix up c_long and c_ulong so that it matches the
-    # Cygwin (and UNIX) sizes when run on Windows. The alternative
-    # would be to modify every structure below that uses c_long and
-    # c_ulong.
+    # Cygwin (and UNIX) sizes when run on Windows.
     import sys
     if sys.maxsize > 0xffffffff:
-        c_long = c_int64
-        c_ulong = c_uint64
+        c_win_long = c_int64
+        c_win_ulong = c_uint64
     else:
-        c_long = c_int32
-        c_ulong = c_uint32
+        c_win_long = c_int32
+        c_win_ulong = c_uint32
 
-class c_timespec(ctypes.Structure):
-    _fields_ = [('tv_sec', ctypes.c_long), ('tv_nsec', ctypes.c_long)]
+if _system == 'Windows' or _system.startswith('CYGWIN'):
+    class c_timespec(ctypes.Structure):
+        _fields_ = [('tv_sec', c_win_long), ('tv_nsec', c_win_long)]
+else:
+    class c_timespec(ctypes.Structure):
+        _fields_ = [('tv_sec', ctypes.c_long), ('tv_nsec', ctypes.c_long)]
 
 class c_utimbuf(ctypes.Structure):
     _fields_ = [('actime', c_timespec), ('modtime', c_timespec)]
@@ -296,8 +298,8 @@ elif _system == 'Linux':
 elif _system == 'Windows' or _system.startswith('CYGWIN'):
     ENOTSUP = 129 if _system == 'Windows' else 134
     c_dev_t = c_uint
-    c_fsblkcnt_t = c_ulong
-    c_fsfilcnt_t = c_ulong
+    c_fsblkcnt_t = c_win_ulong
+    c_fsfilcnt_t = c_win_ulong
     c_gid_t = c_uint
     c_mode_t = c_uint
     c_off_t = c_longlong
@@ -348,6 +350,21 @@ if _system == 'FreeBSD':
             ('f_bsize', ctypes.c_ulong),
             ('f_flag', ctypes.c_ulong),
             ('f_frsize', ctypes.c_ulong)]
+elif _system == 'Windows' or _system.startswith('CYGWIN'):
+    class c_statvfs(ctypes.Structure):
+        _fields_ = [
+            ('f_bsize', c_win_ulong),
+            ('f_frsize', c_win_ulong),
+            ('f_blocks', c_fsblkcnt_t),
+            ('f_bfree', c_fsblkcnt_t),
+            ('f_bavail', c_fsblkcnt_t),
+            ('f_files', c_fsfilcnt_t),
+            ('f_ffree', c_fsfilcnt_t),
+            ('f_favail', c_fsfilcnt_t),
+            ('f_fsid', c_win_ulong),
+            # ('unused', ctypes.c_int),
+            ('f_flag', c_win_ulong),
+            ('f_namemax', c_win_ulong)]
 else:
     class c_statvfs(ctypes.Structure):
         _fields_ = [
