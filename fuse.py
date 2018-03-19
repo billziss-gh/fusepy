@@ -48,6 +48,27 @@ try:
 except NameError:
     basestring = str
 
+_system = system()
+_machine = machine()
+
+if _system == 'Windows':
+    # NOTE:
+    #
+    # sizeof(long)==4 on Windows 32-bit and 64-bit
+    # sizeof(long)==4 on Cygwin 32-bit and ==8 on Cygwin 64-bit
+    #
+    # We have to fix up c_long and c_ulong so that it matches the
+    # Cygwin (and UNIX) sizes when run on Windows. The alternative
+    # would be to modify every structure below that uses c_long and
+    # c_ulong.
+    import sys
+    if sys.maxsize > 0xffffffff:
+        c_long = c_int64
+        c_ulong = c_uint64
+    else:
+        c_long = c_int32
+        c_ulong = c_uint32
+
 class c_timespec(ctypes.Structure):
     _fields_ = [('tv_sec', ctypes.c_long), ('tv_nsec', ctypes.c_long)]
 
@@ -56,9 +77,6 @@ class c_utimbuf(ctypes.Structure):
 
 class c_stat(ctypes.Structure):
     pass    # Platform dependent
-
-_system = system()
-_machine = machine()
 
 _libfuse_path = os.environ.get('FUSE_LIBRARY_PATH')
 if not _libfuse_path:
@@ -274,9 +292,9 @@ elif _system == 'Linux':
             ('st_atimespec', c_timespec),
             ('st_mtimespec', c_timespec),
             ('st_ctimespec', c_timespec),
-            ('st_ino', ctypes.c_ulonglong)]
-elif _system.startswith('CYGWIN'):
-    ENOTSUP = 134
+            ('st_ino', c_ulonglong)]
+elif _system == 'Windows' or _system.startswith('CYGWIN'):
+    ENOTSUP = 129 if _system == 'Windows' else 134
     c_dev_t = c_uint
     c_fsblkcnt_t = c_ulong
     c_fsfilcnt_t = c_ulong
