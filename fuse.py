@@ -294,7 +294,7 @@ elif _system == 'Linux':
             ('st_atimespec', c_timespec),
             ('st_mtimespec', c_timespec),
             ('st_ctimespec', c_timespec),
-            ('st_ino', c_ulonglong)]
+            ('st_ino', ctypes.c_ulonglong)]
 elif _system == 'Windows' or _system.startswith('CYGWIN'):
     ENOTSUP = 129 if _system == 'Windows' else 134
     c_dev_t = c_uint
