@@ -61,11 +61,11 @@ if _system == 'Windows':
     # Cygwin (and UNIX) sizes when run on Windows.
     import sys
     if sys.maxsize > 0xffffffff:
-        c_win_long = c_int64
-        c_win_ulong = c_uint64
+        c_win_long = ctypes.c_int64
+        c_win_ulong = ctypes.c_uint64
     else:
-        c_win_long = c_int32
-        c_win_ulong = c_uint32
+        c_win_long = ctypes.c_int32
+        c_win_ulong = ctypes.c_uint32
 
 if _system == 'Windows' or _system.startswith('CYGWIN'):
     class c_timespec(ctypes.Structure):
@@ -297,23 +297,23 @@ elif _system == 'Linux':
             ('st_ino', ctypes.c_ulonglong)]
 elif _system == 'Windows' or _system.startswith('CYGWIN'):
     ENOTSUP = 129 if _system == 'Windows' else 134
-    c_dev_t = c_uint
+    c_dev_t = ctypes.c_uint
     c_fsblkcnt_t = c_win_ulong
     c_fsfilcnt_t = c_win_ulong
-    c_gid_t = c_uint
-    c_mode_t = c_uint
-    c_off_t = c_longlong
-    c_pid_t = c_int
-    c_uid_t = c_uint
-    setxattr_t = CFUNCTYPE(c_int, c_char_p, c_char_p, POINTER(c_byte),
-                           c_size_t, c_int)
-    getxattr_t = CFUNCTYPE(c_int, c_char_p, c_char_p, POINTER(c_byte),
-                           c_size_t)
+    c_gid_t = ctypes.c_uint
+    c_mode_t = ctypes.c_uint
+    c_off_t = ctypes.c_longlong
+    c_pid_t = ctypes.c_int
+    c_uid_t = ctypes.c_uint
+    setxattr_t = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_char_p, ctypes.c_char_p,
+        ctypes.POINTER(ctypes.c_byte), ctypes.c_size_t, ctypes.c_int)
+    getxattr_t = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_char_p, ctypes.c_char_p,
+        ctypes.POINTER(ctypes.c_byte), ctypes.c_size_t)
     c_stat._fields_ = [
         ('st_dev', c_dev_t),
-        ('st_ino', c_ulonglong),
+        ('st_ino', ctypes.c_ulonglong),
         ('st_mode', c_mode_t),
-        ('st_nlink', c_ushort),
+        ('st_nlink', ctypes.c_ushort),
         ('st_uid', c_uid_t),
         ('st_gid', c_gid_t),
         ('st_rdev', c_dev_t),
@@ -321,8 +321,8 @@ elif _system == 'Windows' or _system.startswith('CYGWIN'):
         ('st_atimespec', c_timespec),
         ('st_mtimespec', c_timespec),
         ('st_ctimespec', c_timespec),
-        ('st_blksize', c_int),
-        ('st_blocks', c_longlong),
+        ('st_blksize', ctypes.c_int),
+        ('st_blocks', ctypes.c_longlong),
         ('st_birthtimespec', c_timespec)]
 else:
     raise NotImplementedError('%s is not supported.' % _system)
@@ -381,17 +381,17 @@ else:
             ('f_namemax', ctypes.c_ulong)]
 
 if _system == 'Windows' or _system.startswith('CYGWIN'):
-    class fuse_file_info(Structure):
+    class fuse_file_info(ctypes.Structure):
         _fields_ = [
-            ('flags', c_int),
-            ('fh_old', c_int),
-            ('writepage', c_int),
-            ('direct_io', c_uint, 1),
-            ('keep_cache', c_uint, 1),
-            ('flush', c_uint, 1),
-            ('padding', c_uint, 29),
-            ('fh', c_uint64),
-            ('lock_owner', c_uint64)]
+            ('flags', ctypes.c_int),
+            ('fh_old', ctypes.c_int),
+            ('writepage', ctypes.c_int),
+            ('direct_io', ctypes.c_uint, 1),
+            ('keep_cache', ctypes.c_uint, 1),
+            ('flush', ctypes.c_uint, 1),
+            ('padding', ctypes.c_uint, 29),
+            ('fh', ctypes.c_uint64),
+            ('lock_owner', ctypes.c_uint64)]
 else:
     class fuse_file_info(ctypes.Structure):
         _fields_ = [
