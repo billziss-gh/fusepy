@@ -362,7 +362,6 @@ elif _system == 'Windows' or _system.startswith('CYGWIN'):
             ('f_ffree', c_fsfilcnt_t),
             ('f_favail', c_fsfilcnt_t),
             ('f_fsid', c_win_ulong),
-            # ('unused', ctypes.c_int),
             ('f_flag', c_win_ulong),
             ('f_namemax', c_win_ulong)]
 else:
